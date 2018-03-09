@@ -1,5 +1,7 @@
 package graph
 
+// Vertex part
+
 type Vertex interface {
 	GetHash()		uint64
 }
@@ -12,11 +14,17 @@ func (v *vertex) GetHash() uint64 {
 	return v.hash
 }
 
+// End vertex part
+
+// Weight part
+
 type Weight interface {
 	GetMin()		int
 	GetMax()		int
 	GetDelta()		int
 	GetDispersion()	int
+
+	Recompute(ts uint64)
 }
 
 type weight struct {
@@ -25,6 +33,26 @@ type weight struct {
 	delta		int
 	dispersion 	int
 }
+
+func (w *weight) GetMin() int {
+	return w.min
+}
+func (w *weight) GetMax() int {
+	return w.max
+}
+func (w *weight) GetDelta() int {
+	return w.delta
+}
+func (w *weight) GetDispersion() int {
+	return w.dispersion
+}
+func (w *weight) Recompute(ts uint64) {
+
+}
+
+// End Weight part
+
+// Edge part
 
 type Edge interface {
 	Source()		Vertex
@@ -38,10 +66,11 @@ type edge struct {
 	wgt		Weight
 }
 
+func (e *edge) Source() Vertex {
+	return e.source
+}
 
-//type Vertex struct {
-//	Children map[int]Weight
-//}
+// end edge part
 
 type Graph struct {
 	Root int	// hash of root vertex
