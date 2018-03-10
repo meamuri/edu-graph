@@ -31,3 +31,12 @@ func (w *weight) GetDispersion() int {
 func (w *weight) Recompute(ts uint64) {
 	panic("TODO: should be implement!!")
 }
+
+func CreateWeight(ts uint64) Weight {
+	return &weight {
+		min: 0,
+		max: 0,
+		delta: 0,
+		dispersion: 0,
+	}
+}

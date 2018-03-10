@@ -10,8 +10,7 @@ type graph struct {
 	current  		uint64 // hash of current vertex
 	finished 		bool
 	vertices		map[uint64]Vertex
-	sourcesOfVertex	map[uint64]map[uint64]weight
-	targetsOfVertex	map[uint64]map[uint64]weight
+	targetsOfVertex	map[uint64]map[uint64]Weight
 }
 
 func newGraph(body string, theHash uint64) *graph {
@@ -20,14 +19,12 @@ func newGraph(body string, theHash uint64) *graph {
 		current:         theHash,								// also first elem is current elem
 		finished:        false,									// true after special signal
 		vertices:        make(map[uint64]Vertex),
-		sourcesOfVertex: make(map[uint64]map[uint64]weight),
-		targetsOfVertex: make(map[uint64]map[uint64]weight),
+		targetsOfVertex: make(map[uint64]map[uint64]Weight),
 	}
 	res.vertices[theHash] = createVertex(body)
 	// empty map means, that RootVertex (theHash) does not contain edges yet
 	// maps initialized, but should be empty now (we have single root
-	res.sourcesOfVertex[theHash] = make(map[uint64]weight)
-	res.targetsOfVertex[theHash] = make(map[uint64]weight)
+	res.targetsOfVertex[theHash] = make(map[uint64]Weight)
 	return &res
 }
 
@@ -37,17 +34,14 @@ func (g *graph) String() string {
 
 func (g *graph) RegisterRecord(record Record) bool {
 	sum := getHash(record.Body)
-	//if _, ok := g.vertices[sum]; !ok {
-	//	return false
-	//}
 
-	if _, ok := g.targetsOfVertex[g.current][sum]; !ok {
-
+	if val, ok := g.targetsOfVertex[g.current][sum]; ok {
+		val.Recompute(record.Timestamp)
+	} else {
+		g.targetsOfVertex[g.current][sum] = CreateWeight(record.Timestamp)
 	}
 
-	// 1.
-
-
+	g.current = sum // now we stay here
 	return true
 }
 
