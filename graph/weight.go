@@ -29,5 +29,5 @@ func (w *weight) GetDispersion() int {
 	return w.dispersion
 }
 func (w *weight) Recompute(ts uint64) {
-
+	panic("TODO: should be implement!!")
 }
