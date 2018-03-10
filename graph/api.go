@@ -1,4 +1,4 @@
-package api
+package graph
 
 type Record interface {
 	GetTID() 		int
