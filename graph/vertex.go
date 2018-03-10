@@ -1,13 +1,19 @@
 package graph
 
 type Vertex interface {
-	GetHash()		uint64
+	GetBody()		string
 }
 
 type vertex struct {
-	hash			uint64
+	body			string
 }
 
-func (v *vertex) GetHash() uint64 {
-	return v.hash
+func (v *vertex) GetBody() string {
+	return v.body
+}
+
+func createVertex(theBody string) Vertex {
+	return &vertex {
+		body: theBody,
+	}
 }
