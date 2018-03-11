@@ -19,3 +19,11 @@ Record of business transaction has next struct:
 * Graphs should be clustered if we many unique transactions.
 
 * Records input: syslog sever
+
+## testing
+
+use for testing: g
+
+```
+$ go test ./graph 
+```
