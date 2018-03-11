@@ -1,4 +1,4 @@
-package graph
+package main
 
 type Vertex interface {
 	GetBody()		string

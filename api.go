@@ -1,4 +1,4 @@
-package graph
+package main
 
 // syslog record, single action of logical business transaction
 type Record struct {

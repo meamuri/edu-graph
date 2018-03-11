@@ -1,4 +1,4 @@
-package graph
+package main
 
 import (
 	"testing"
@@ -17,4 +17,7 @@ func TestManagerRegisterFirstTID(t *testing.T) {
 	t.Log("manager empty, try register first Tid.")
 	m := CreateManager()
 	m.ManageRecord(constRecord)
+	if false {
+		t.Error("something wrong!")
+	}
 }

@@ -1,4 +1,4 @@
-package graph
+package main
 
 const COUNT = 5
 
@@ -23,6 +23,7 @@ func CreateManager() Manager {
 		// when new tid will registered, increment this value:
 		// that's mean that last used graph of array: graphArray[currentElement]
 		currentElement: -1,
+		graphToTheirTIDs: make(map[int]int),
 	}
 }
 
