@@ -43,6 +43,9 @@ func (m *manager) ManageRecord(record Record) {
 	if m.currentElement == COUNT {
 		// clustering
 	} else {
+		// when new graph for new unique tid added, we should
+		// register new map: TID -> ArrayIndex
+		// and initialize Graph
 		m.graphArray[m.currentElement] = NewGraph(record)
 		m.graphToTheirTIDs[record.Tid] = m.currentElement
 	}
