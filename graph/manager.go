@@ -9,24 +9,13 @@ type Manager interface {
 }
 
 type manager struct {
-	graphArray 		[COUNT]graph
+	graphArray 		[COUNT]Graph
 	currentElement 	int
 
 	// that is simple hack:
-	// we map COUNT of graphs to their TIDs:
-	// for example, ``graphArray[0]`` manages next set of TIDs: 10, 11, 95.
-	// and ``graphArray[1]`` manages TIDs: 3, 15, 200
-	// so, this field will contain:
-	//	0	-> 10	true
-	//		-> 11	true
-	//		-> 95	true
-	//	1	-> 3	true
-	//		-> 15	true
-	//		-> 200	true
-	//	2	-> empty
-	//	3	-> empty
-	// 	..
-	graphToTheirTIDs map[int]map[uint64]bool
+	// tid -> graphArray[index]
+	// we get index of graph which contain info about TID
+	graphToTheirTIDs map[int]int
 }
 
 func CreateManager() Manager {
@@ -37,6 +26,27 @@ func CreateManager() Manager {
 	}
 }
 
+func (m *manager) clusteringGraphs() {
+	// some steps
+	m.currentElement = 0		// we have only first graph, may be
+}
+
 func (m *manager) ManageRecord(record Record) {
+	if arrIndex, ok := m.graphToTheirTIDs[record.Tid]; ok {
+		m.graphArray[arrIndex].RegisterRecord(record)
+		return
+	}
+	// if record.TID is unknown tid for manager, register new graph
+	// or clustering if array is full
+
+	m.currentElement += 1
+	if m.currentElement == COUNT {
+		// clustering
+	} else {
+		m.graphArray[m.currentElement] = NewGraph(record)
+		m.graphToTheirTIDs[record.Tid] = m.currentElement
+	}
+
+	// m.graphArray[m.currentElement].RegisterRecord(record)
 
 }
