@@ -22,8 +22,18 @@ Record of business transaction has next struct:
 
 ## testing
 
-use for testing: g
+use for testing:
 
 ```
-$ go test ./graph 
+$ go test
 ```
+
+## TODO:
+
+* syslog consumer
+
+* neo4j snapshot saver
+
+* Computing/Recomputing edge's weight
+
+* Clustering
