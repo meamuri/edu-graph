@@ -1,31 +1,16 @@
 package graph
 
-//type Record interface {
-//	GetTID() 		int
-//	GetBody() 		string
-//	GetTimestamp() 	uint64
-//	GetParams() 	map[string]interface{}
-//}
-
+// syslog record, single action of logical business transaction
 type Record struct {
+	// transaction id
 	Tid       int                    `json:"tid"`
+
+	// query body -- base unit of transaction
 	Body      string                 `json:"body"`
+
+	// timestamp of action
 	Timestamp uint64                 `json:"timestamp"`
+
+	// params of action
 	Params    map[string]interface{} `json:"params"`
 }
-
-//func (r *record) GetTid() int {
-//	return r.Tid
-//}
-//
-//func (r *record) GetBody() string {
-//	return r.Body
-//}
-//
-//func (r *record) GetTimestamp() uint64 {
-//	return r.Timestamp
-//}
-//
-//func (r *record) GetParams() map[string]interface{} {
-//	return r.Params
-//}
