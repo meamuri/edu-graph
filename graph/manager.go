@@ -1,4 +1,4 @@
-package main
+package graph
 
 const COUNT = 5
 

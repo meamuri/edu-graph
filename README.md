@@ -25,7 +25,7 @@ Record of business transaction has next struct:
 use for testing:
 
 ```
-$ go test
+$ go test ./module_name
 ```
 
 ## TODO:

@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/meamuri/edu-graph/graph"
 )
 
 // rc is a Record Chan
 // sc is a Snapshot Chan
 // fc is a Finish Chan
-func controlFlow(m Manager, rc <-chan Record, sc, fc <-chan bool) {
+func controlFlow(m graph.Manager, rc <-chan graph.Record, sc, fc <-chan bool) {
 	for {
 		select {
 		case r := <- rc:
@@ -28,10 +29,10 @@ func main() {
 	//	fmt.Printf("error")
 	//}
 	//fmt.Printf("hi")
-	fmt.Printf("Start execution")
+	fmt.Printf("Start execution\n")
 
-	m := CreateManager()
-	rc := make(chan Record)
+	m := graph.CreateManager()
+	rc := make(chan graph.Record)
 	cs := make(chan bool)
 	fc := make(chan bool)
 
