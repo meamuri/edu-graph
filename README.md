@@ -37,3 +37,10 @@ $ go test ./module_name
 * Computing/Recomputing edge's weight
 
 * Clustering
+
+## running
+
+```
+go install      // in project folder
+sudo edu-graph  // sudo for listening tcp port
+```
