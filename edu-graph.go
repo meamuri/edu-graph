@@ -7,7 +7,7 @@ import (
 // rc is a Record Chan
 // sc is a Snapshot Chan
 // fc is a Finish Chan
-func controlFlow(m Manager, rc chan Record, sc, fc chan bool) {
+func controlFlow(m Manager, rc <-chan Record, sc, fc <-chan bool) {
 	for {
 		select {
 		case r := <- rc:
