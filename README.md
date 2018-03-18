@@ -44,3 +44,8 @@ $ go test ./module_name
 go install      // in project folder
 sudo edu-graph  // sudo for listening tcp port
 ```
+
+for sending tcp package: 
+```
+echo -n "package body" | nc localhost 514
+```
