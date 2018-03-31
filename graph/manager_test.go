@@ -13,11 +13,23 @@ var constRecord = Record {
 	},
 }
 
-func TestManagerRegisterFirstTID(t *testing.T) {
+func TestManagerEmpty(t *testing.T) {
+	t.Log("INIT: manager empty, check fields.")
+	m := createManager()
+	if m.currentElement != -1 || len(m.graphToTheirTIDs) != 0 {
+		t.Error("managare has incorrect current element")
+	}
+}
+
+func TestManagerWithSingleRecord(t *testing.T) {
 	t.Log("INIT: manager empty, try register first Tid.")
-	m := CreateManager()
+	m := createManager()
 	m.ManageRecord(constRecord)
-	if false {
-		t.Error("something wrong!")
+	if ! func() bool {
+		return m.currentElement == 0 &&
+			len(m.graphToTheirTIDs) == 1 &&
+			m.graphToTheirTIDs[constRecord.Tid] == 0
+	}() {
+		t.Error("managare has incorrect current element")
 	}
 }

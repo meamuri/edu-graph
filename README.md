@@ -25,12 +25,12 @@ Record of business transaction has next struct:
 use for testing:
 
 ```
-$ go test ./module_name
+$ go test -v ./module_name
 ```
 
 ## TODO:
 
-* syslog consumer
+* message broker consumer
 
 * neo4j snapshot saver
 
