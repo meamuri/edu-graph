@@ -44,7 +44,7 @@ func (g *graph) computeEdgeWeight(i, j, ts uint64) {
 	}
 }
 
-func newGraph(body string, theHash uint64) *graph {
+func createGraph(body string, theHash uint64) *graph {
 	res := graph{
 		root:            theHash,								// first elem is root of graph
 		current:         theHash,								// also first elem is current elem
@@ -82,9 +82,14 @@ func (g *graph) RegisterRecord(record Record) bool {
 
 // Api {
 
-func NewGraph(record Record) Graph {
+// this factory will be used in tests,
+// for access to fields and assertion
+func newGraph(record Record) *graph {
 	sum := getHash(record.Body)
-	return newGraph(record.Body, sum)
+	return createGraph(record.Body, sum)
+}
+func NewGraph(record Record) Graph {
+	return newGraph(record)
 }
 
 // } .. api

@@ -18,13 +18,17 @@ type manager struct {
 	graphToTheirTIDs map[int]int
 }
 
-func CreateManager() Manager {
+func createManager() *manager {
 	return &manager{
 		// when new tid will registered, increment this value:
 		// that's mean that last used graph of array: graphArray[currentElement]
 		currentElement: -1,
 		graphToTheirTIDs: make(map[int]int),
 	}
+}
+
+func CreateManager() Manager {
+	return createManager()
 }
 
 func (m *manager) clusteringGraphs() {
