@@ -14,7 +14,7 @@ var constRecord = Record {
 }
 
 func TestManagerRegisterFirstTID(t *testing.T) {
-	t.Log("manager empty, try register first Tid.")
+	t.Log("INIT: manager empty, try register first Tid.")
 	m := CreateManager()
 	m.ManageRecord(constRecord)
 	if false {
