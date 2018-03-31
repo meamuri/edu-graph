@@ -56,4 +56,11 @@ func TestGraphWithTwoNodes(t *testing.T) {
 	if graph.finished || graph.root != rootHash || graph.current != hashOfSecondNode {
 		t.Error("smth went wrong!")
 	}
+	if len(graph.vertices) != 2 {
+		t.Error("more than 2 nodes in this case")
+	}
+
+	if len(graph.targetsOfVertex[rootHash]) != 1 && len(graph.targetsOfVertex[hashOfSecondNode]) != 0 {
+		t.Error("error weights and edges!")
+	}
 }
