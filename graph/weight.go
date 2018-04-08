@@ -1,49 +1,50 @@
 package graph
 
 type Weight interface {
-	GetMin()		int
-	GetMax()		int
-	GetDelta()		int
-	GetDispersion()	int
+	GetMin()		uint64
+	GetMax()		uint64
+	GetDelta()		uint64
+	GetDispersion()	uint64
 
-	Recompute(ts uint64)
+	Recompute(previous uint64, ts uint64)
 }
 
 type weight struct {
-	min			int
-	max			int
-	delta		int
-	dispersion 	int
+	min			uint64
+	max			uint64
+	delta		uint64
+	dispersion 	uint64
 }
 
-func (w *weight) GetMin() int {
+func (w *weight) GetMin() uint64 {
 	return w.min
 }
-func (w *weight) GetMax() int {
+func (w *weight) GetMax() uint64 {
 	return w.max
 }
-func (w *weight) GetDelta() int {
+func (w *weight) GetDelta() uint64 {
 	return w.delta
 }
-func (w *weight) GetDispersion() int {
+func (w *weight) GetDispersion() uint64 {
 	return w.dispersion
 }
-func (w *weight) Recompute(ts uint64) {
-	panic("TODO: should be implement!!")
+func (w *weight) Recompute(previous uint64, ts uint64) {
+	diff := ts - previous
+	if diff < w.min {
+		w.min = diff
+	} else if diff > w.max {
+		w.max = diff
+	}
 }
 
 // this factory will be used in tests,
 // for access to fields and assertion
-func createWeight(ts uint64) *weight {
-	// TODO: timestamp param should be used
+func createWeight(previous uint64, ts uint64) Weight {
+	diff := ts - previous
 	return &weight {
-		min: 0,
-		max: 0,
+		min: diff,
+		max: diff,
 		delta: 0,
 		dispersion: 0,
 	}
-}
-
-func CreateWeight(ts uint64) Weight {
-	return createWeight(ts)
 }

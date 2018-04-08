@@ -36,11 +36,11 @@ func (g *graph) addVertex(body string, ts uint64, address uint64) bool {
 // add edge between two vertices: i->j
 // edge weight will computed in according ``ts`` param [timestamp]
 // if edge exists, recompute weight
-func (g *graph) computeEdgeWeight(i, j, ts uint64) {
-	if val, ok := g.targetsOfVertex[i][j]; ok {
-		val.Recompute(ts)
+func (g *graph) computeEdgeWeight(from, to, ts uint64) {
+	if val, ok := g.targetsOfVertex[from][to]; ok {
+		val.Recompute(g.vertices[from].GetTimestamp(), ts)
 	} else {
-		g.targetsOfVertex[i][j] = CreateWeight(ts)
+		g.targetsOfVertex[from][to] = createWeight(g.vertices[from].GetTimestamp(), ts)
 	}
 }
 
