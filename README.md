@@ -48,4 +48,5 @@ sudo edu-graph  // sudo for listening tcp port
 for sending tcp package: 
 ```
 echo -n "package body" | nc localhost 514
+echo -e "{\"tid\": 1, \"body\": \"hey\", \"timestamp\": 12, \"params\": {}}" | nc localhost 514
 ```

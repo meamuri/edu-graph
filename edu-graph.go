@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/meamuri/edu-graph/graph"
-	"github.com/meamuri/edu-graph/connectivity"
 )
 
 // rc is a Record Chan
@@ -24,12 +23,6 @@ func controlFlow(m graph.Manager, rc <-chan graph.Record, sc, fc <-chan bool) {
 }
 
 func main() {
-	//r := Record{Tid: 100, Body: "SELECT ?? FROM table_name", Timestamp: 12, Params: make(map[string]interface{})}
-	//g := NewGraph(r)
-	//if g == nil {
-	//	fmt.Printf("error")
-	//}
-	//fmt.Printf("hi")
 	fmt.Printf("Start execution\n")
 
 	m := graph.CreateManager()
@@ -45,13 +38,14 @@ func main() {
 	go controlFlow(m, rc, cs, fc)
 
 	bc := make(chan bool)
-	stringChan := make (chan string)
-	go connectivity.StartListening(stringChan, bc)
+	stringChan := make (chan graph.Record)
+	go StartListening(stringChan, bc)
 
 	for {
 		select {
 			case s := <-stringChan:
-				fmt.Printf(s)
+				fmt.Println(s)
+				rc <- s // pipe message to manager
 			case <-bc :
 				fmt.Printf("good bye")
 				break

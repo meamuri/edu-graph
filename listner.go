@@ -1,9 +1,11 @@
-package connectivity
+package main
 
 import (
 	"fmt"
 	"net"
 	"os"
+	"encoding/json"
+	"github.com/meamuri/edu-graph/graph"
 )
 
 const (
@@ -12,8 +14,8 @@ const (
 	TYPE = "tcp"
 )
 
-func StartListening(c chan<- string, b chan<-bool) {
-	hostPlusPort := HOST+":"+PORT
+func StartListening(c chan<- graph.Record, b chan<-bool) {
+	hostPlusPort := HOST + ":" + PORT
 	l, err := net.Listen(TYPE, hostPlusPort)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
@@ -38,15 +40,15 @@ func StartListening(c chan<- string, b chan<-bool) {
 }
 
 // Handles incoming requests.
-func handleRequest(conn net.Conn, c chan<- string) {
-	// Make a buffer to hold incoming data.
-	buf := make([]byte, 2048)
-	// Read the incoming connection into the buffer.
-	_, err := conn.Read(buf)
+func handleRequest(conn net.Conn, c chan<- graph.Record) {
+	d := json.NewDecoder(conn)
+
+	var msg graph.Record
+	err := d.Decode(&msg)
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
-	c <- string(buf)
+	c <- msg
 	// Send a response back to person contacting us.
 	conn.Write([]byte("Message received."))
 	// Close the connection when you're done with it.
