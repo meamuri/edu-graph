@@ -14,7 +14,7 @@ type graph struct {
 	current  		uint64 // hash of current vertex
 	finished 		bool
 	vertices		map[uint64]Vertex
-	targetsOfVertex	map[uint64]map[uint64]Weight
+	targetsOfVertex	map[uint64]Edges
 }
 
 // } .. dataTypes
@@ -29,20 +29,10 @@ func (g *graph) addVertex(body string, ts uint64, address uint64) bool {
 		return false // vertex exists, return and notify that we did not add vertex
 	}
 	g.vertices[address] = createVertex(body, ts)
-	g.targetsOfVertex[address] = make(map[uint64]Weight)
+	g.targetsOfVertex[address] = createEdges()
 	return true
 }
 
-// add edge between two vertices: i->j
-// edge weight will computed in according ``ts`` param [timestamp]
-// if edge exists, recompute weight
-func (g *graph) computeEdgeWeight(from, to, ts uint64) {
-	if val, ok := g.targetsOfVertex[from][to]; ok {
-		val.Recompute(g.vertices[from].GetTimestamp(), ts)
-	} else {
-		g.targetsOfVertex[from][to] = createWeight(g.vertices[from].GetTimestamp(), ts)
-	}
-}
 
 func createGraph(body string, ts uint64, theHash uint64) *graph {
 	res := graph{
@@ -50,7 +40,7 @@ func createGraph(body string, ts uint64, theHash uint64) *graph {
 		current:         theHash,								// also first elem is current elem
 		finished:        false,									// true after special signal
 		vertices:        make(map[uint64]Vertex),
-		targetsOfVertex: make(map[uint64]map[uint64]Weight),
+		targetsOfVertex: make(map[uint64]Edges),
 	}
 	// code blow is very similar addVertex function,
 	// but we sure that initial vertex does not exist
@@ -58,7 +48,7 @@ func createGraph(body string, ts uint64, theHash uint64) *graph {
 	res.vertices[theHash] = createVertex(body, ts)
 	// empty map means, that RootVertex (theHash) does not contain edges yet
 	// maps initialized, but should be empty now (we have single root
-	res.targetsOfVertex[theHash] = make(map[uint64]Weight)
+	res.targetsOfVertex[theHash] = createEdges()
 	return &res
 }
 
@@ -73,7 +63,7 @@ func (g *graph) String() string {
 func (g *graph) RegisterRecord(record Record) bool {
 	sum := getHash(record.Body)
 	g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
-	g.computeEdgeWeight(g.current, sum, record.Timestamp)
+	g.targetsOfVertex[g.current].computeEdge(g.vertices[g.current].GetTimestamp(), record.Timestamp, sum)
 	g.current = sum // now we stay here
 	return true
 }
