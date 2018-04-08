@@ -24,11 +24,11 @@ type graph struct {
 // add vertex into graph and initialize map of targets for new vertex
 // if vertex exists, do nothing.
 // return `true`, if vertex was added, `false` otherwise
-func (g *graph) addVertex(body string, address uint64) bool {
+func (g *graph) addVertex(body string, ts uint64, address uint64) bool {
 	if _, ok := g.vertices[address]; ok {
 		return false // vertex exists, return and notify that we did not add vertex
 	}
-	g.vertices[address] = createVertex(body)
+	g.vertices[address] = createVertex(body, ts)
 	g.targetsOfVertex[address] = make(map[uint64]Weight)
 	return true
 }
@@ -44,7 +44,7 @@ func (g *graph) computeEdgeWeight(i, j, ts uint64) {
 	}
 }
 
-func createGraph(body string, theHash uint64) *graph {
+func createGraph(body string, ts uint64, theHash uint64) *graph {
 	res := graph{
 		root:            theHash,								// first elem is root of graph
 		current:         theHash,								// also first elem is current elem
@@ -55,7 +55,7 @@ func createGraph(body string, theHash uint64) *graph {
 	// code blow is very similar addVertex function,
 	// but we sure that initial vertex does not exist
 	// and we can skip `if` operator [optimization, ha-ha]
-	res.vertices[theHash] = createVertex(body)
+	res.vertices[theHash] = createVertex(body, ts)
 	// empty map means, that RootVertex (theHash) does not contain edges yet
 	// maps initialized, but should be empty now (we have single root
 	res.targetsOfVertex[theHash] = make(map[uint64]Weight)
@@ -72,7 +72,7 @@ func (g *graph) String() string {
 
 func (g *graph) RegisterRecord(record Record) bool {
 	sum := getHash(record.Body)
-	g.addVertex(record.Body, sum) // we can ignore `bool` result
+	g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
 	g.computeEdgeWeight(g.current, sum, record.Timestamp)
 	g.current = sum // now we stay here
 	return true
@@ -86,7 +86,7 @@ func (g *graph) RegisterRecord(record Record) bool {
 // for access to fields and assertion
 func newGraph(record Record) *graph {
 	sum := getHash(record.Body)
-	return createGraph(record.Body, sum)
+	return createGraph(record.Body, record.Timestamp, sum)
 }
 func NewGraph(record Record) Graph {
 	return newGraph(record)
