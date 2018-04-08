@@ -52,6 +52,17 @@ func createGraph(body string, ts uint64, theHash uint64) *graph {
 	return &res
 }
 
+func (g *graph) addEdge(to uint64) {
+	if to == g.current {
+		panic("target vertex and current vertex have same values!")
+	}
+	from := g.current
+	prevTs := g.vertices[from].GetTimestamp()
+	ts := g.vertices[to].GetTimestamp()
+
+	g.targetsOfVertex[from].computeEdge(prevTs, ts, to)
+}
+
 // } .. utils
 
 // interface implementation {
@@ -63,7 +74,7 @@ func (g *graph) String() string {
 func (g *graph) RegisterRecord(record Record) bool {
 	sum := getHash(record.Body)
 	g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
-	g.targetsOfVertex[g.current].computeEdge(g.vertices[g.current].GetTimestamp(), record.Timestamp, sum)
+	g.addEdge(sum)
 	g.current = sum // now we stay here
 	return true
 }
