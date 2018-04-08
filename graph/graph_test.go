@@ -37,7 +37,7 @@ func TestGraphInitialization(t *testing.T) {
 	if len(graph.vertices) != 1 {
 		t.Error("length of verteces map is not equal to 1")
 	}
-	if len(graph.targetsOfVertex[theHash]) != 0 {
+	if graph.targetsOfVertex[theHash].count() != 0 {
 		t.Error("graph with single vertex has phantom edges")
 	}
 	t.Log("graph has single vertex without edges")
@@ -60,7 +60,7 @@ func TestGraphWithTwoNodes(t *testing.T) {
 		t.Error("more than 2 nodes in this case")
 	}
 
-	if len(graph.targetsOfVertex[rootHash]) != 1 && len(graph.targetsOfVertex[hashOfSecondNode]) != 0 {
+	if graph.targetsOfVertex[rootHash].count() != 1 && graph.targetsOfVertex[hashOfSecondNode].count() != 0 {
 		t.Error("error weights and edges!")
 	}
 }

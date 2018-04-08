@@ -35,6 +35,7 @@ func (w *weight) Recompute(previous uint64, ts uint64) {
 	} else if diff > w.max {
 		w.max = diff
 	}
+	w.delta = w.max - w.min
 }
 
 // this factory will be used in tests,

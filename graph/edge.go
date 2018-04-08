@@ -2,6 +2,7 @@ package graph
 
 type Edges interface {
 	computeEdge(previousTs, ts, target uint64)
+	count()	int
 }
 
 type edges struct {
@@ -13,6 +14,10 @@ func createEdges() *edges {
 	return &edges {
 		weights: make(map[uint64]Weight),
 	}
+}
+
+func (e *edges) count() int {
+	return len(e.weights)
 }
 
 // edge will be created if does not exist
