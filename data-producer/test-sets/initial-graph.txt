@@ -1,0 +1,2 @@
+{"tid": 1, "body": "hey", "timestamp": 12, "params": {}}"
+{"tid": 1, "body": "SELECT * FROM ??", "timestamp": 20, "params": {"a": True, "version": "1.4.RELEASE"}}

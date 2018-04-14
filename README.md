@@ -50,3 +50,8 @@ for sending tcp package:
 echo -n "package body" | nc localhost 514
 echo -e "{\"tid\": 1, \"body\": \"hey\", \"timestamp\": 12, \"params\": {}}" | nc localhost 514
 ```
+
+# Makefile manual
+
+* launch graph: `make`
+* initialization graph: `make init-graph`
