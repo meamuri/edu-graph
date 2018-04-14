@@ -14,7 +14,7 @@ const (
 	TYPE = "tcp"
 )
 
-func StartListening(c chan<- graph.Record, b chan<-bool) {
+func StartListening(records chan<- graph.Record, errorSignal chan<-bool) {
 	hostPlusPort := HOST + ":" + PORT
 	l, err := net.Listen(TYPE, hostPlusPort)
 	if err != nil {
@@ -24,7 +24,7 @@ func StartListening(c chan<- graph.Record, b chan<-bool) {
 	// Close the listener when the application closes.
 	defer l.Close()
 	defer func() {
-		b<-true
+		errorSignal <-true
 	}()
 	fmt.Println("Listening on " + hostPlusPort)
 	for {
@@ -35,12 +35,12 @@ func StartListening(c chan<- graph.Record, b chan<-bool) {
 			os.Exit(1)
 		}
 		// Handle connections in a new goroutine.
-		go handleRequest(conn, c)
+		go handleRequest(conn, records)
 	}
 }
 
 // Handles incoming requests.
-func handleRequest(conn net.Conn, c chan<- graph.Record) {
+func handleRequest(conn net.Conn, records chan<- graph.Record) {
 	d := json.NewDecoder(conn)
 
 	var msg graph.Record
@@ -48,7 +48,7 @@ func handleRequest(conn net.Conn, c chan<- graph.Record) {
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
-	c <- msg
+	records <- msg
 	// Send a response back to person contacting us.
 	conn.Write([]byte("Message received."))
 	// Close the connection when you're done with it.

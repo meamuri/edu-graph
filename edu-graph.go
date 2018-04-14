@@ -8,14 +8,14 @@ import (
 // rc is a Record Chan
 // sc is a Snapshot Chan
 // fc is a Finish Chan
-func controlFlow(m graph.Manager, rc <-chan graph.Record, sc, fc <-chan bool) {
+func controlFlow(manager graph.Manager, record <-chan graph.Record, snapshot, finish <-chan bool) {
 	for {
 		select {
-		case r := <- rc:
-			m.ManageRecord(r)
-		case <- sc:
+		case r := <-record:
+			manager.ManageRecord(r)
+		case <-snapshot:
 			// snapshot
-		case <- fc:
+		case <-finish:
 			// snapshot
 			return
 		}
@@ -23,30 +23,28 @@ func controlFlow(m graph.Manager, rc <-chan graph.Record, sc, fc <-chan bool) {
 }
 
 func main() {
-	fmt.Printf("Start execution\n")
-
-	m := graph.CreateManager()
-	rc := make(chan graph.Record)
-	cs := make(chan bool)
-	fc := make(chan bool)
+	graphManager := graph.CreateManager()
+	recordsChannel := make(chan graph.Record)
+	snapShotSignalChannel := make(chan bool)
+	finishSignalChannel := make(chan bool)
 
 	// we should stop execution before end of program
-	defer func(){
-		fc <- true
+	defer func() {
+		finishSignalChannel <- true
 	}()
 
-	go controlFlow(m, rc, cs, fc)
+	go controlFlow(graphManager, recordsChannel, snapShotSignalChannel, finishSignalChannel)
 
-	bc := make(chan bool)
-	stringChan := make (chan graph.Record)
-	go StartListening(stringChan, bc)
+	listenerErrorSignal := make(chan bool)
+	receivedRecords := make (chan graph.Record)
+	go StartListening(receivedRecords, listenerErrorSignal)
 
 	for {
 		select {
-			case s := <-stringChan:
-				fmt.Println(s)
-				rc <- s // pipe message to manager
-			case <-bc :
+			case record := <-receivedRecords:
+				fmt.Println(record)
+				recordsChannel <- record // pipe message to manager
+			case <-listenerErrorSignal:
 				fmt.Printf("good bye")
 				break
 		}

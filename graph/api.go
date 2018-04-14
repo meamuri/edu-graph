@@ -4,21 +4,22 @@ import (
 	"fmt"
 )
 
-// syslog record, single action of logical business transaction
+// single record of logical business transaction
 type Record struct {
-	// transaction id
+	// Transaction id
 	Tid       int                    `json:"tid"`
 
-	// query body -- base unit of transaction
+	// Query body
 	Body      string                 `json:"body"`
 
-	// timestamp of action
+	// Timestamp of execution
 	Timestamp uint64                 `json:"timestamp"`
 
-	// params of action
+	// Parameters of execution
 	Params    map[string]interface{} `json:"params"`
 }
 
+// String representation of record
 func (r *Record) String() string {
 	return fmt.Sprintf("%v %v %v", r.Tid, r.Body, r.Timestamp)
 }
