@@ -63,6 +63,11 @@ func (g *graph) addEdge(to uint64) {
 	g.targetsOfVertex[from].computeEdge(prevTs, ts, to)
 }
 
+func (g *graph) addSelfLoop(timestamp uint64) {
+	prevTs := g.vertices[g.current].GetTimestamp()
+	g.targetsOfVertex[g.current].computeEdge(prevTs, timestamp, g.current)
+}
+
 // } .. utils
 
 // interface implementation {
@@ -73,9 +78,14 @@ func (g *graph) String() string {
 
 func (g *graph) RegisterRecord(record Record) bool {
 	sum := getHash(record.Body)
-	g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
-	g.addEdge(sum)
-	g.current = sum // now we stay here
+	if sum == g.current {
+		g.addSelfLoop(record.Timestamp)
+		g.current = sum // now we stay here
+	} else {
+		g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
+		g.addEdge(sum)
+	}
+
 	return true
 }
 
