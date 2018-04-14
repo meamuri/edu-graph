@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/meamuri/edu-graph/graph"
+	"time"
 )
+
+const SnapshotPeriod = 15
 
 // rc is a Record Chan
 // sc is a Snapshot Chan
@@ -14,6 +17,7 @@ func controlFlow(manager graph.Manager, record <-chan graph.Record, snapshot, fi
 		case r := <-record:
 			manager.ManageRecord(r)
 		case <-snapshot:
+			fmt.Println("Should be snapshoted now: ", time.Now())
 			// snapshot
 		case <-finish:
 			// snapshot
@@ -38,6 +42,7 @@ func main() {
 	listenerErrorSignal := make(chan bool)
 	receivedRecords := make (chan graph.Record)
 	go StartListening(receivedRecords, listenerErrorSignal)
+	go StartTicking(snapShotSignalChannel, SnapshotPeriod)
 
 	for {
 		select {
