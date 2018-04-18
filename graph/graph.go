@@ -5,7 +5,7 @@ package graph
 
 // Graph (discrete mathematics), a set of vertices and edges
 type Graph interface {
-	RegisterRecord(record Record)	bool
+	RegisterRecord(record Record)
 	String() string
 }
 
@@ -13,23 +13,39 @@ type graph struct {
 	root     		uint64 // hash of root vertex
 	current  		uint64 // hash of current vertex
 	finished 		bool
-	vertices		map[uint64]Vertex
-	targetsOfVertex	map[uint64]Edges
+	vertices		map[uint64]*vertex
+	targetsOfVertex	map[uint64]*edges
 }
 
 // } .. dataTypes
 
 // utils {
 
+func (g *graph) getEdgesOf(vertexHash uint64) *edges {
+	return g.targetsOfVertex[vertexHash]
+}
+
+func (g *graph) getTsOf(vertexHash uint64) uint64 {
+	return g.vertices[vertexHash].GetTimestamp()
+}
+
+func (g *graph) getEdgesOfCurrent() *edges {
+	return g.targetsOfVertex[g.current]
+}
+
+func (g *graph) getTimestampOfCurrent() uint64 {
+	return g.vertices[g.current].GetTimestamp()
+}
+
 // add vertex into graph and initialize map of targets for new vertex
 // if vertex exists, do nothing.
 // return `true`, if vertex was added, `false` otherwise
-func (g *graph) addVertex(body string, ts uint64, address uint64) bool {
-	if _, ok := g.vertices[address]; ok {
+func (g *graph) addVertex(body string, timestamp uint64, vertexHash uint64) bool {
+	if _, ok := g.vertices[vertexHash]; ok {
 		return false // vertex exists, return and notify that we did not add vertex
 	}
-	g.vertices[address] = createVertex(body, ts)
-	g.targetsOfVertex[address] = createEdges()
+	g.vertices[vertexHash] = createVertex(body, timestamp)
+	g.targetsOfVertex[vertexHash] = createEdges()
 	return true
 }
 
@@ -39,8 +55,8 @@ func createGraph(body string, ts uint64, theHash uint64) *graph {
 		root:            theHash,								// first elem is root of graph
 		current:         theHash,								// also first elem is current elem
 		finished:        false,									// true after special signal
-		vertices:        make(map[uint64]Vertex),
-		targetsOfVertex: make(map[uint64]Edges),
+		vertices:        make(map[uint64]*vertex),
+		targetsOfVertex: make(map[uint64]*edges),
 	}
 	// code blow is very similar addVertex function,
 	// but we sure that initial vertex does not exist
@@ -52,20 +68,21 @@ func createGraph(body string, ts uint64, theHash uint64) *graph {
 	return &res
 }
 
-func (g *graph) addEdge(to uint64) {
-	if to == g.current {
-		panic("target vertex and current vertex have same values!")
+// Create edge between current and next vertices. Panic, if current and target is the same vertices.
+func (g *graph) addEdge(sourceVertex, targetVertex uint64) {
+	timestamp := g.vertices[targetVertex].GetTimestamp()
+	if sourceVertex == targetVertex {
+		g.addSelfLoop(sourceVertex, timestamp)
+		return
 	}
-	from := g.current
-	prevTs := g.vertices[from].GetTimestamp()
-	ts := g.vertices[to].GetTimestamp()
-
-	g.targetsOfVertex[from].computeEdge(prevTs, ts, to)
+	previousTimestamp := g.vertices[sourceVertex].GetTimestamp()
+	g.targetsOfVertex[sourceVertex].computeEdge(previousTimestamp, timestamp, targetVertex)
 }
 
-func (g *graph) addSelfLoop(timestamp uint64) {
-	prevTs := g.vertices[g.current].GetTimestamp()
-	g.targetsOfVertex[g.current].computeEdge(prevTs, timestamp, g.current)
+// Create loop edge at last vertex
+func (g *graph) addSelfLoop(vertexHash, timestamp uint64) {
+	previousTimestamp := g.getTsOf(vertexHash)
+	g.getEdgesOf(vertexHash).computeEdge(previousTimestamp, timestamp, vertexHash)
 }
 
 // } .. utils
@@ -76,17 +93,13 @@ func (g *graph) String() string {
 	return "graph"	// TODO: impl string representation
 }
 
-func (g *graph) RegisterRecord(record Record) bool {
-	sum := getHash(record.Body)
-	if sum == g.current {
-		g.addSelfLoop(record.Timestamp)
-		g.current = sum // now we stay here
-	} else {
-		g.addVertex(record.Body, record.Timestamp, sum) // we can ignore `bool` result
-		g.addEdge(sum)
-	}
-
-	return true
+func (g *graph) RegisterRecord(record Record) {
+	vertexHash := getHash(record.Body)
+	// if hashes are equals, create loop edge and recompute last vertex timestamp
+	g.addVertex(record.Body, record.Timestamp, vertexHash) // we can ignore `bool` result
+	g.addEdge(g.current, vertexHash)
+	g.vertices[vertexHash].RegisterNewTimestamp(record.Timestamp)
+	g.current = vertexHash // now we stay here
 }
 
 // } .. interface implementation

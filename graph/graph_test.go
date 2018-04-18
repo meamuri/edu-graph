@@ -6,7 +6,7 @@ import (
 
 const sqlQuery = "SELECT * FROM ??"
 const mongoQuery = "db.collection.find({id: ??})"
-const graphQLquery = `query {
+const graphQlQuery = `query {
   repository(owner: "graphql", name: "graphql-js"){
     name
     description
@@ -28,7 +28,6 @@ func TestGraphInitialization(t *testing.T) {
 	t.Log("INIT: start testing graph without nodes")
 	theHash := getHash(sqlQuery)
 	record := getRecord(sqlQuery, timestampForAnyRecord)
-	//graph := createGraph(sqlQuery, theHash)
 	graph := newGraph(record)
 	if graph.current != theHash || graph.root != theHash {
 		t.Error("root and current node should be equal to last node hash")
@@ -62,5 +61,61 @@ func TestGraphWithTwoNodes(t *testing.T) {
 
 	if graph.targetsOfVertex[rootHash].count() != 1 && graph.targetsOfVertex[hashOfSecondNode].count() != 0 {
 		t.Error("error weights and edges!")
+	}
+}
+
+func TestLoopEdgeCalculationAtFirstNode(t *testing.T) {
+	t.Log("INIT: Start testing loop edges")
+	rootHash := getHash(sqlQuery)
+	graph := newGraph(getRecord(sqlQuery, timestampForAnyRecord))
+
+	secondTimestamp := uint64(timestampForAnyRecord + 15)
+	graph.RegisterRecord(getRecord(sqlQuery, secondTimestamp))
+
+	if graph.vertices[rootHash].GetTimestamp() != secondTimestamp {
+		t.Error("error timestamp calculation!")
+	}
+
+	if len(graph.vertices) != 1 {
+		t.Error("error nodes calculation!")
+	}
+
+	if _, ok := graph.targetsOfVertex[rootHash]; graph.targetsOfVertex[rootHash].count() != 1 ||
+		!ok {
+		t.Error("edge error!")
+	}
+
+}
+
+// A - B - C - A
+func TestGraphWithThirdToFirstEdge(t *testing.T) {
+	rootHash := getHash(sqlQuery)
+	hashOfSecondNode := getHash(mongoQuery)
+	hashOfThirdNode := getHash(graphQlQuery)
+	secondTs := uint64(timestampForAnyRecord + 5)
+	thirdTs := uint64(secondTs + 5)
+	lastTs := uint64(thirdTs + 5)
+	graph := newGraph(getRecord(sqlQuery, timestampForAnyRecord))
+	graph.RegisterRecord(getRecord(mongoQuery, secondTs))
+	graph.RegisterRecord(getRecord(graphQlQuery, thirdTs))
+	graph.RegisterRecord(getRecord(sqlQuery, lastTs))
+
+	if graph.current != rootHash || graph.current != graph.root{
+		t.Error("Error")
+	}
+
+	if graph.targetsOfVertex[rootHash].count() != 1 ||
+		graph.targetsOfVertex[hashOfSecondNode].count() != 1 ||
+		graph.targetsOfVertex[hashOfThirdNode].count() != 1 ||
+		!graph.targetsOfVertex[hashOfSecondNode].hasEdgeTo(hashOfThirdNode) ||
+		!graph.targetsOfVertex[hashOfThirdNode].hasEdgeTo(rootHash) ||
+		!graph.targetsOfVertex[rootHash].hasEdgeTo(hashOfSecondNode) {
+			t.Error("ooops")
+	}
+
+	if graph.getTsOf(rootHash) != lastTs ||
+		graph.getTsOf(hashOfSecondNode) != secondTs ||
+		graph.getTsOf(hashOfThirdNode) != thirdTs {
+			t.Error("ts error")
 	}
 }

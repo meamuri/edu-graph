@@ -1,12 +1,11 @@
 package graph
 
-type Edges interface {
-	computeEdge(previousTs, ts, target uint64)
-	count()	int
-}
-
 type edges struct {
 	weights map[uint64]Weight
+}
+
+func (e *edges) getWeights() *map[uint64]Weight {
+	return &e.weights
 }
 
 // method should be invoked with vertex initialization
@@ -14,6 +13,11 @@ func createEdges() *edges {
 	return &edges {
 		weights: make(map[uint64]Weight),
 	}
+}
+
+func (e *edges) hasEdgeTo(targetVertex uint64) bool {
+	_, res := e.weights[targetVertex]
+	return res
 }
 
 func (e *edges) count() int {

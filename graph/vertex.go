@@ -1,10 +1,5 @@
 package graph
 
-type Vertex interface {
-	GetBody()		string
-	GetTimestamp()	uint64
-}
-
 type vertex struct {
 	body			string
 	timestamp		uint64
@@ -18,7 +13,11 @@ func (v *vertex) GetTimestamp() uint64 {
 	return v.timestamp
 }
 
-func createVertex(theBody string, ts uint64) Vertex {
+func (v *vertex) RegisterNewTimestamp(timestamp uint64) {
+	v.timestamp = timestamp
+}
+
+func createVertex(theBody string, ts uint64) *vertex {
 	return &vertex {
 		body: theBody,
 		timestamp: ts,
